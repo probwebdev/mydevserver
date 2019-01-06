@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+
+  redis:
+    image: redis:6-alpine
+    command: --appendonly yes
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.role == manager ]
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 10s
+    networks:
+      - services
+    volumes:
+      - redis-cache:/data
+
+networks:
+  services:
+    external: true
+
+volumes:
+  redis-cache:
+    external: true

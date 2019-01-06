@@ -1,0 +1,46 @@
+version: "3.7"
+services:
+
+  gitea:
+    image: gitea/gitea:1.12
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.labels.gitea == true ]
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 10s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=services"
+        - "traefik.http.routers.gitea.entrypoints=websecure"
+        - "traefik.http.routers.gitea.rule=HostHeader(`gitea.test.local`, `www.gitea.test.local`)"
+        - "traefik.http.routers.gitea.middlewares=servicesDefault@file"
+        - "traefik.http.routers.gitea.tls=true"
+        - "traefik.http.services.gitea.loadbalancer.server.port=3000"
+        - "traefik.tcp.routers.gitea.entrypoints=ssh"
+        - "traefik.tcp.routers.gitea.rule=HostSNI(`*`)"
+        - "traefik.tcp.routers.gitea.service=gitea"
+        - "traefik.tcp.services.gitea.loadbalancer.server.port=22"
+    networks:
+      - services
+    environment:
+      - "DB_TYPE=postgres"
+      - "DB_HOST=postgres:5432"
+      - "DB_NAME"
+      - "DB_USER"
+      - "DB_PASSWD"
+    volumes:
+      - gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+
+networks:
+  services:
+    external: true
+
+volumes:
+  gitea-data:
+    external: true

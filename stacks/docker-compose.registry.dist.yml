@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+
+  registry:
+    image: registry:2
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [ node.labels.registry == true ]
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 10s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=services"
+        - "traefik.http.routers.registry.entrypoints=websecure"
+        - "traefik.http.routers.registry.rule=HostHeader(`registry.test.local`, `www.registry.test.local`)"
+        - "traefik.http.routers.registry.middlewares=secureHeaders@file,authRegistry@file"
+        - "traefik.http.routers.registry.tls=true"
+        - "traefik.http.services.registry.loadbalancer.server.port=5000"
+    networks:
+      - services
+    environment:
+      - "REGISTRY_STORAGE_DELETE_ENABLED=true"
+      - "REGISTRY_STORAGE_CACHE_BLOBDESCRIPTOR=redis"
+      - "REGISTRY_REDIS_ADDR=redis:6379"
+      - "REGISTRY_HTTP_SECRET"
+    volumes:
+      - registry-data:/var/lib/registry
+
+networks:
+  services:
+    external: true
+
+volumes:
+  registry-data:
+    external: true

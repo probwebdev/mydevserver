@@ -1,0 +1,45 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+  faketls:
+    address: ":8443"
+  ssh:
+    address: ":22"
+
+providers:
+  docker:
+    watch: true
+    network: shared
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    swarmMode: true
+  file:
+    filename: "/traefik.dynamic.yml"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: user@test.local
+      storage: acme.json
+      dnsChallenge:
+        provider: digitalocean
+        delayBeforeCheck: 0
+
+log:
+  level: INFO
+
+accessLog: {}
+
+api:
+  dashboard: true
+  insecure: false
+  debug: false
+
+pilot:
+  token: ""

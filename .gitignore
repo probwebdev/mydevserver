@@ -1,0 +1,18 @@
+# IDEs
+.idea
+.vscode
+
+# Docker Secrets
+secrets
+
+# Config
+config/env/*env
+!config/env/*.dist.env
+config/traefik/acme.json
+config/traefik/*.yml
+!config/traefik/*.dist.yml
+
+# Stacks
+stacks/*.yml
+!stacks/*.dist.yml
+docker-compose.yml
