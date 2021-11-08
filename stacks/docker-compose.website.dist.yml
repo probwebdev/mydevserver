@@ -12,8 +12,7 @@ services:
         window: 10s
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=services"
-        - "traefik.http.routers.website.entrypoints=websecure,faketls"
+        - "traefik.http.routers.website.entrypoints=websecure"
         - "traefik.http.routers.website.rule=HostHeader(`website.local`, `www.website.local`)"
         - "traefik.http.routers.website.middlewares=secureHeaders@file"
         - "traefik.http.routers.website.tls=true"
@@ -24,7 +23,7 @@ services:
   dev:
     image: registry.website.local/website:latest
     deploy:
-      replicas: 1
+      replicas: 0
       restart_policy:
         condition: on-failure
         delay: 5s
@@ -32,10 +31,10 @@ services:
         window: 10s
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=services"
+        - "traefik.docker.lbswarm=true"
         - "traefik.http.routers.website-dev.entrypoints=websecure"
         - "traefik.http.routers.website-dev.rule=HostHeader(`dev.website.local`, `www.dev.website.local`)"
-        - "traefik.http.routers.website-dev.middlewares=secureHeaders@file,auth@file"
+        - "traefik.http.routers.website-dev.middlewares=secureHeaders@file,auth@file,ondemand-dev@docker"
         - "traefik.http.routers.website-dev.tls=true"
         - "traefik.http.services.website-dev.loadbalancer.server.port=80"
     networks:

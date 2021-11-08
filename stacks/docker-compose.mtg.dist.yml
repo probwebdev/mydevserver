@@ -3,7 +3,6 @@ services:
 
   proxy:
     image: nineseconds/mtg:stable
-    command: run <secret> <tag> > /dev/null
     deploy:
       replicas: 1
       placement:
@@ -15,25 +14,18 @@ services:
         window: 10s
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=shared"
         - "traefik.tcp.routers.mtg-proxy.entrypoints=websecure"
-        - "traefik.tcp.routers.mtg-proxy.rule=HostSNI(`mtg.test.local`)"
+        - "traefik.tcp.routers.mtg-proxy.rule=HostSNI(`mtg.test.local)"
         - "traefik.tcp.routers.mtg-proxy.tls=true"
         - "traefik.tcp.routers.mtg-proxy.tls.passthrough=true"
         - "traefik.tcp.routers.mtg-proxy.service=mtg-proxy"
         - "traefik.tcp.services.mtg-proxy.loadbalancer.server.port=3128"
     networks:
       - shared
-    ports:
-      - 3128:3128
-    environment:
-      - "MTG_VERBOSE=false"
-      - "MTG_BUFFER_WRITE=64KB"
-      - "MTG_BUFFER_READ=128KB"
-      - "MTG_CLOAK_PORT=8443"
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+      - /etc/mtg/config.toml:/config.toml
 
 networks:
   shared:

@@ -5,10 +5,14 @@ global:
 entryPoints:
   web:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          scheme: "https"
+          permanent: true
+          to: "websecure"
   websecure:
     address: ":443"
-  faketls:
-    address: ":8443"
   ssh:
     address: ":22"
 
@@ -43,3 +47,9 @@ api:
 
 pilot:
   token: ""
+
+experimental:
+  plugins:
+    traefik-ondemand-plugin:
+      moduleName: "github.com/acouvreur/traefik-ondemand-plugin"
+      version: "v1.0.1"

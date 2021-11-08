@@ -14,7 +14,6 @@ services:
         window: 10s
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=services"
         - "traefik.http.routers.gitea.entrypoints=websecure"
         - "traefik.http.routers.gitea.rule=HostHeader(`gitea.test.local`, `www.gitea.test.local`)"
         - "traefik.http.routers.gitea.middlewares=servicesDefault@file"

@@ -2,7 +2,7 @@ version: "3.7"
 services:
 
   server:
-    image: drone/drone:1
+    image: drone/drone:2
     deploy:
       replicas: 1
       placement:
@@ -14,19 +14,20 @@ services:
         window: 10s
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=services"
         - "traefik.http.routers.drone.entrypoints=websecure"
-        - "traefik.http.routers.drone.rule=HostHeader(`drone.test.local`, `www.drone.test.local`)"
+        - "traefik.http.routers.drone.rule=Host(`drone.test.local`, `www.drone.test.local`)"
         - "traefik.http.routers.drone.middlewares=servicesDefault@file"
         - "traefik.http.routers.drone.tls=true"
         - "traefik.http.services.drone.loadbalancer.server.port=80"
     networks:
       - services
     environment:
-      - "DRONE_GIT_ALWAYS_AUTH=true"
+      - "DRONE_GIT_ALWAYS_AUTH=false"
       - "DRONE_GITEA_SERVER"
       - "DRONE_GITEA_CLIENT_ID"
       - "DRONE_GITEA_CLIENT_SECRET"
+      - "DRONE_GITHUB_CLIENT_ID"
+      - "DRONE_GITHUB_CLIENT_SECRET"
       - "DRONE_RPC_SECRET"
       - "DRONE_DATABASE_DRIVER=postgres"
       - "DRONE_DATABASE_DATASOURCE"

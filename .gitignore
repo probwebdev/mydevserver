@@ -11,6 +11,8 @@ config/env/*env
 config/traefik/acme.json
 config/traefik/*.yml
 !config/traefik/*.dist.yml
+config/mtg/*.toml
+!config/mtg/*.dist.yml
 
 # Stacks
 stacks/*.yml

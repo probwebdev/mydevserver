@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+
+  ondemand:
+    image: acouvreur/traefik-ondemand-service:1
+    command:
+      - --swarmMode=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 10s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.middlewares.ondemand-dev.plugin.traefik-ondemand-plugin.name=<STACKNAME_SERVICENAME>"
+        - "traefik.http.middlewares.ondemand-dev.plugin.traefik-ondemand-plugin.serviceUrl=http://ondemand:10000"
+        - "traefik.http.middlewares.ondemand-dev.plugin.traefik-ondemand-plugin.timeout=1m"
+        - "traefik.http.services.ondemand.loadbalancer.server.port=10000"
+    networks:
+      - services
+
+networks:
+  services:
+    external: true
