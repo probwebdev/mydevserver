@@ -2,7 +2,8 @@ version: "3.7"
 services:
 
   proxy:
-    image: nineseconds/mtg:stable
+    image: nineseconds/mtg:2
+    command: run /mtg-config.toml
     deploy:
       replicas: 1
       placement:
@@ -20,12 +21,17 @@ services:
         - "traefik.tcp.routers.mtg-proxy.tls.passthrough=true"
         - "traefik.tcp.routers.mtg-proxy.service=mtg-proxy"
         - "traefik.tcp.services.mtg-proxy.loadbalancer.server.port=3128"
+    configs:
+      - mtg-config.toml
     networks:
       - shared
     volumes:
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - /etc/mtg/config.toml:/config.toml
+
+configs:
+  mtg-config.toml:
+    external: true
 
 networks:
   shared:

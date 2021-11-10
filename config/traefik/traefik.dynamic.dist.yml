@@ -15,10 +15,6 @@ http:
       headers:
         accessControlMaxAge: 100
         addVaryHeader: true
-    auth:
-      basicAuth:
-        usersFile: "/run/secrets/admin_auth"
-        realm: "admin"
     authRegistry:
       basicAuth:
         usersFile: "/run/secrets/registry_auth"

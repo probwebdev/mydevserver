@@ -18,8 +18,8 @@ services:
         - "traefik.http.routers.traefik.tls.domains[0].main=*.test.local"
         - "traefik.http.routers.traefik.tls.domains[0].sans=test.local"
         - "traefik.http.routers.api.entrypoints=websecure"
-        - "traefik.http.routers.api.rule=HostHeader(`traefik.test.local`, `www.traefik.test.local`)"
-        - "traefik.http.routers.api.middlewares=servicesDefault@file,auth@file"
+        - "traefik.http.routers.api.rule=Host(`traefik.test.local`, `www.traefik.test.local`)"
+        - "traefik.http.routers.api.middlewares=servicesDefault@file,oauth@docker"
         - "traefik.http.routers.api.tls=true"
         - "traefik.http.routers.api.service=api@internal"
         - "traefik.http.services.api.loadbalancer.server.port=8080"
@@ -35,13 +35,44 @@ services:
       - traefik.dynamic.yml
     secrets:
       - do_auth_token
-      - admin_auth
       - registry_auth
     environment:
       - "DO_AUTH_TOKEN_FILE=/run/secrets/do_auth_token"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./config/traefik/acme.json:/acme.json
+
+  oauth2:
+    image: bitnami/oauth2-proxy:7
+    command: --config=/oauth2-proxy.cfg
+    deploy:
+      mode: global
+      placement:
+        constraints: [ node.role == manager ]
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 10s
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.oauth2.entrypoints=websecure"
+        - "traefik.http.routers.oauth2.rule=HostRegexp(`test.local`, `{subdomain:[a-z]+}.test.local`) && PathPrefix(`/oauth2/`)"
+        - "traefik.http.routers.oauth2.middlewares=secureHeaders@file"
+        - "traefik.http.routers.oauth2.tls=true"
+        - "traefik.http.services.oauth2.loadbalancer.server.port=4180"
+        - "traefik.http.middlewares.oauth2.forwardauth.address=http://oauth2:4180"
+        - "traefik.http.middlewares.oauth2.forwardauth.trustForwardHeader=true"
+        - "traefik.http.middlewares.oauth2.forwardauth.authResponseHeaders=X-Auth-Request-Access-Token, Authorization"
+        - "traefik.http.middlewares.oauth2-errors.errors.status=401-403"
+        - "traefik.http.middlewares.oauth2-errors.errors.service=oauth2"
+        - "traefik.http.middlewares.oauth2-errors.errors.query=/oauth2/sign_in"
+    env_file:
+      - "./config/oauth2-proxy/.oauth2.env"
+    configs:
+      - oauth2-proxy.cfg
+    networks:
+      - services
 
   portainer-agent:
     image: portainer/agent:latest
@@ -78,7 +109,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.portainer.entrypoints=websecure"
-        - "traefik.http.routers.portainer.rule=HostHeader(`portainer.test.local`, `www.portainer.test.local`)"
+        - "traefik.http.routers.portainer.rule=Host(`portainer.test.local`, `www.portainer.test.local`)"
         - "traefik.http.routers.portainer.middlewares=servicesDefault@file"
         - "traefik.http.routers.portainer.tls=true"
         - "traefik.http.services.portainer.loadbalancer.server.port=9000"
@@ -93,12 +124,12 @@ configs:
     file: ./config/traefik/traefik.yml
   traefik.dynamic.yml:
     file: ./config/traefik/traefik.dynamic.yml
+  oauth2-proxy.cfg:
+    file: ./config/oauth2-proxy/oauth2-proxy.cfg
 
 secrets:
   do_auth_token:
     file: ./secrets/do_auth_token.txt
-  admin_auth:
-    file: ./secrets/htpasswd.admin
   registry_auth:
     file: ./secrets/htpasswd.registry
 

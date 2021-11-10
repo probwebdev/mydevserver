@@ -15,7 +15,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.registry.entrypoints=websecure"
-        - "traefik.http.routers.registry.rule=HostHeader(`registry.test.local`, `www.registry.test.local`)"
+        - "traefik.http.routers.registry.rule=Host(`registry.test.local`, `www.registry.test.local`)"
         - "traefik.http.routers.registry.middlewares=secureHeaders@file,authRegistry@file"
         - "traefik.http.routers.registry.tls=true"
         - "traefik.http.services.registry.loadbalancer.server.port=5000"

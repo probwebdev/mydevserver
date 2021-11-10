@@ -15,7 +15,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.gitea.entrypoints=websecure"
-        - "traefik.http.routers.gitea.rule=HostHeader(`gitea.test.local`, `www.gitea.test.local`)"
+        - "traefik.http.routers.gitea.rule=Host(`gitea.test.local`, `www.gitea.test.local`)"
         - "traefik.http.routers.gitea.middlewares=servicesDefault@file"
         - "traefik.http.routers.gitea.tls=true"
         - "traefik.http.services.gitea.loadbalancer.server.port=3000"

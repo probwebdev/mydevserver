@@ -6,8 +6,8 @@
 secrets
 
 # Config
-config/env/*env
-!config/env/*.dist.env
+config/**/*.env
+!config/**/*.dist.env
 config/traefik/acme.json
 config/traefik/*.yml
 !config/traefik/*.dist.yml
