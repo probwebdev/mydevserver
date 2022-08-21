@@ -1,6 +1,12 @@
 # Docker Swarm
 **Operator**: Traefik, Portainer  
-**Services**: Nginx, Postgres, Drone, Gitea, Docker Registry, MTG Proxy
+**Services**: Nginx, Postgres, Drone, Gitea, Docker Registry, MTG Proxy, OAuth Proxy
+
+## Farewell message
+It was quite fun to manage personal swarm cluster with different dev services, even in a simplified manner, 
+but it's time to move on and switch focus on development rather than managing infra/devops.   
+Nowadays with services like [Vercel](https://vercel.com), [GitHub Actions](https://docs.github.com/en/actions), 
+[Railway](https://railway.app/) etc. it's better and more productive idea to use external things.
 
 ## Initial setup
 1. Setup configuration:
